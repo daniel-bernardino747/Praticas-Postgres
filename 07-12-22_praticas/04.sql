@@ -1,0 +1,1 @@
+INSERT INTO produtos VALUES (99, 'Macbook Pro 13"', 17000);
