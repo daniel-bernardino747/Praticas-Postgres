@@ -1,0 +1,116 @@
+CREATE TYPE phones_type AS ENUM ('mobile', 'landline');
+CREATE TYPE transaction_type AS ENUM ('deposit', 'withdraw');
+
+CREATE TABLE "public.costumers" (
+	"id" serial NOT NULL,
+	"fullName" varchar(40) NOT NULL,
+	"cpf" varchar(11) NOT NULL UNIQUE,
+	"email" varchar(40) NOT NULL UNIQUE,
+	"password" varchar(40) NOT NULL,
+	CONSTRAINT "costumers_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE "public.bankAccount" (
+	"id" serial NOT NULL,
+	"customerId" integer NOT NULL,
+	"accountNumber" varchar(40) NOT NULL UNIQUE,
+	"agency" varchar(10) NOT NULL UNIQUE,
+	"openDate" DATE NOT NULL,
+	"closeDate" DATE NOT NULL,
+	CONSTRAINT "bankAccount_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.transactions" (
+	"id" serial NOT NULL,
+	"bankAccountId" integer NOT NULL,
+	"amount" integer NOT NULL,
+	"type" transaction_type,
+	"time" TIMESTAMP NOT NULL DEFAULT now(),
+	"description" TEXT,
+	"cancelled" BOOLEAN DEFAULT FALSE,
+	CONSTRAINT "transactions_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.creditCards" (
+	"id" serial NOT NULL,
+	"bankAccountId" integer NOT NULL,
+	"name" varchar(45) NOT NULL,
+	"number" varchar(40) NOT NULL UNIQUE,
+	"securityCode" varchar(4) NOT NULL,
+	"expirationMonth" varchar(15) NOT NULL,
+	"expirationYear" DATE NOT NULL,
+	"password" varchar(40) NOT NULL,
+	"limit" integer NOT NULL,
+	CONSTRAINT "creditCards_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.customerAddresses" (
+	"id" serial NOT NULL,
+	"customerId" integer NOT NULL,
+	"street" varchar(40) NOT NULL,
+	"number" integer NOT NULL,
+	"complement" varchar(20) NOT NULL,
+	"postalCode" varchar(10) NOT NULL,
+	"cityId" integer NOT NULL,
+	CONSTRAINT "customerAddresses_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.cities" (
+	"id" serial NOT NULL,
+	"name" varchar(40) NOT NULL UNIQUE,
+	"stateId" integer NOT NULL,
+	CONSTRAINT "cities_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "public.states" (
+	"id" serial NOT NULL,
+	"name" varchar(40) NOT NULL UNIQUE,
+	CONSTRAINT "states_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE "public.customerPhones" (
+	"id" serial NOT NULL,
+	"customerId" integer NOT NULL,
+	"number" varchar(11) NOT NULL,
+	"type" phones_type,
+	CONSTRAINT "customerPhones_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+ALTER TABLE "bankAccount" ADD CONSTRAINT "bankAccount_fk0" FOREIGN KEY ("customerId") REFERENCES "costumers"("id");
+
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_fk0" FOREIGN KEY ("bankAccountId") REFERENCES "bankAccount"("id");
+
+ALTER TABLE "creditCards" ADD CONSTRAINT "creditCards_fk0" FOREIGN KEY ("bankAccountId") REFERENCES "bankAccount"("id");
+
+ALTER TABLE "customerAddresses" ADD CONSTRAINT "customerAddresses_fk0" FOREIGN KEY ("customerId") REFERENCES "costumers"("id");
+ALTER TABLE "customerAddresses" ADD CONSTRAINT "customerAddresses_fk1" FOREIGN KEY ("cityId") REFERENCES "cities"("id");
+
+ALTER TABLE "cities" ADD CONSTRAINT "cities_fk0" FOREIGN KEY ("stateId") REFERENCES "states"("id");
+
+ALTER TABLE "customerPhones" ADD CONSTRAINT "customerPhones_fk0" FOREIGN KEY ("customerId") REFERENCES "costumers"("id");
