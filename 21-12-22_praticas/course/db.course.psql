@@ -1,0 +1,46 @@
+CREATE TABLE "public.classes" (
+	"id" SERIAL NOT NULL,
+	"code" varchar(5) NOT NULL UNIQUE,
+	CONSTRAINT "classes_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "public.students" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+	"age" INTEGER NOT NULL,
+	"cpf" varchar(11) NOT NULL UNIQUE,
+	"email" TEXT NOT NULL UNIQUE,
+	"classId" INTEGER NOT NULL UNIQUE REFERENCES classes(id),
+	CONSTRAINT "students_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "public.historical" (
+	"id" SERIAL NOT NULL,
+	"studentId" INTEGER NOT NULL UNIQUE REFERENCES students(id),
+	"classId" INTEGER NOT NULL UNIQUE REFERENCES classes(id),
+	"startedDate" DATE NOT NULL DEFAULT now(),
+	"finishedDate" DATE,
+	CONSTRAINT "historical_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "public.modules" (
+	"id" SERIAL NOT NULL,
+	"name" INTEGER NOT NULL UNIQUE,
+	CONSTRAINT "modules_pk" PRIMARY KEY ("id")
+);
+
+CREATE TYPE score_type AS ENUM (
+  'Abaixo das Expectativas',
+  'Dentro das Expectativas',
+  'Acima das Expectativas'
+);
+
+CREATE TABLE "public.projects" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+	"score" score_type NOT NULL,
+	"studentId" INTEGER NOT NULL UNIQUE REFERENCES students(id),
+	"moduleId" INTEGER NOT NULL UNIQUE REFERENCES modules(id),
+	"deliveryDate" DATE NOT NULL,
+	CONSTRAINT "projects_pk" PRIMARY KEY ("id")
+);
