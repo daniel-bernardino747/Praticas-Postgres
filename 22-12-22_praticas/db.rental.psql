@@ -1,0 +1,129 @@
+CREATE TABLE "countries" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+	CONSTRAINT "countries_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "states" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+  "country_id" INTEGER NOT NULL REFERENCES countries(id),
+	CONSTRAINT "states_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "cities" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+  "state_id" INTEGER NOT NULL REFERENCES states(id),
+	CONSTRAINT "cities_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "districts" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+  "city_id" INTEGER NOT NULL REFERENCES cities(id),
+	CONSTRAINT "districts_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "addresses" (
+	"id" SERIAL NOT NULL,
+	"street" TEXT NOT NULL UNIQUE,
+  "number" varchar(5) NOT NULL,
+  "complement" varchar(50),
+  "zip_code" varchar(8) NOT NULL,
+  "district_id" INTEGER NOT NULL REFERENCES districts(id),
+	CONSTRAINT "addresses_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "clients" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL,
+  "cpf" varchar(11) NOT NULL UNIQUE,
+	CONSTRAINT "clients_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "clients_addresses" (
+	"id" SERIAL NOT NULL,
+	"client_id" INTEGER NOT NULL REFERENCES clients(id),
+  "address_id" INTEGER NOT NULL REFERENCES addresses(id),
+	CONSTRAINT "clients_addresses_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "phones" (
+	"id" SERIAL NOT NULL,
+	"number" varchar(11) NOT NULL UNIQUE,
+	CONSTRAINT "phones_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "clients_phones" (
+	"id" SERIAL NOT NULL,
+	"client_id" INTEGER NOT NULL REFERENCES clients(id),
+  "phone_id" INTEGER NOT NULL REFERENCES phones(id),
+	CONSTRAINT "clients_phones_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "categories" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL UNIQUE,
+	CONSTRAINT "categories_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "movies" (
+	"id" SERIAL NOT NULL,
+	"title" TEXT NOT NULL UNIQUE,
+  "category_id" INTEGER NOT NULL REFERENCES categories(id),
+	CONSTRAINT "movies_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "discs" (
+	"id" SERIAL NOT NULL,
+	"number" TEXT NOT NULL UNIQUE,
+  "bar_code" varchar(13) NOT NULL UNIQUE,
+  "movie_id" INTEGER NOT NULL REFERENCES movies(id),
+	CONSTRAINT "discs_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "actors" (
+	"id" SERIAL NOT NULL,
+	"name" TEXT NOT NULL,
+  "birthday" DATE NOT NULL,
+  "country_id" INTEGER NOT NULL REFERENCES countries(id),
+	CONSTRAINT "actors_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "movies_actors" (
+	"id" SERIAL NOT NULL,
+	"movie_id" INTEGER NOT NULL REFERENCES movies(id),
+  "category_id" INTEGER NOT NULL REFERENCES actors(id),
+	CONSTRAINT "movies_actors_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "rentals" (
+	"id" SERIAL NOT NULL,
+  "date" DATE NOT NULL DEFAULT now(),
+  "return_date" DATE,
+	"client_id" INTEGER NOT NULL REFERENCES clients(id),
+	CONSTRAINT "rentals_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "rentals_discs" (
+	"id" SERIAL NOT NULL,
+	"rental_id" INTEGER NOT NULL REFERENCES rentals(id),
+	"disc_id" INTEGER NOT NULL REFERENCES discs(id),
+	CONSTRAINT "rentals_discs_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "feedbacks" (
+	"id" SERIAL NOT NULL,
+	"rating" INTEGER NOT NULL,
+	"rental_id" INTEGER NOT NULL REFERENCES rentals(id),
+	CONSTRAINT "feedbacks_pk" PRIMARY KEY ("id")
+);
+
+CREATE TABLE "feedbacks_movies" (
+	"id" SERIAL NOT NULL,
+  "rating" INTEGER NOT NULL,
+	"movie_id" INTEGER NOT NULL REFERENCES movies(id),
+	"feedback_id" INTEGER NOT NULL REFERENCES feedbacks(id),
+	CONSTRAINT "feedbacks_movies_pk" PRIMARY KEY ("id")
+);
